@@ -3,6 +3,8 @@
 App para quem já sabe alguns acordes mas **trava nas trocas**, **sofre com a pestana** e **não tem ouvido absoluto**.
 É um PWA: instala no Android pelo Chrome como um app normal (ícone, tela cheia, funciona offline).
 
+**Endereço:** https://dias06059-lab.github.io/dedo-solto/ — abra no Chrome do Android → menu ⋮ → **Instalar app**.
+
 ## O que tem
 
 | Aba | Para quê |
