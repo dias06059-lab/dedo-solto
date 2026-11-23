@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'app.dedosolto'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'app.dedosolto'
+        minSdk 24
+        targetSdk 35
+        // No GitHub Actions o número da versão sobe a cada build
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger())
+        versionName "1.${System.getenv('GITHUB_RUN_NUMBER') ?: '0'}"
+    }
+
+    signingConfigs {
+        release {
+            // Chave fixa: permite instalar versões novas por cima sem perder o progresso
+            storeFile file('dedosolto.keystore')
+            storePassword 'dedosolto'
+            keyAlias 'dedosolto'
+            keyPassword 'dedosolto'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}
+
+// Copia o app web (pasta raiz do repositório) para dentro do APK
+def webOut = layout.buildDirectory.dir('generated/web')
+def copyWeb = tasks.register('copyWeb', Copy) {
+    from(rootProject.file('..')) {
+        include 'index.html', 'manifest.webmanifest', 'css/**', 'js/**', 'icons/**'
+    }
+    into(webOut.map { it.dir('www') })
+}
+android.sourceSets.main.assets.srcDir(webOut)
+tasks.named('preBuild') { dependsOn copyWeb }

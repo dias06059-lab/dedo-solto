@@ -59,4 +59,10 @@ mkdirSync('icons', { recursive: true });
 writeFileSync('icons/icon-192.png', png(192, icon(1, true)));
 writeFileSync('icons/icon-512.png', png(512, icon(1, true)));
 writeFileSync('icons/icon-512-maskable.png', png(512, icon(0.78, false)));
+// Ícones do APK (android/)
+for (const [dpi, s] of [['mdpi', 48], ['hdpi', 72], ['xhdpi', 96], ['xxhdpi', 144], ['xxxhdpi', 192]]) {
+  const dir = `android/app/src/main/res/mipmap-${dpi}`;
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(`${dir}/ic_launcher.png`, png(s, icon(1, true)));
+}
 console.log('ícones gerados');

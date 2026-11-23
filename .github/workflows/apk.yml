@@ -1,0 +1,57 @@
+name: Gerar APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      # Na primeira vez cria a chave de assinatura e salva no repositório,
+      # para que as próximas versões possam ser instaladas por cima.
+      - name: Chave de assinatura
+        run: |
+          if [ ! -f android/app/dedosolto.keystore ]; then
+            keytool -genkeypair -keystore android/app/dedosolto.keystore -storetype PKCS12 \
+              -alias dedosolto -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass dedosolto -keypass dedosolto -dname "CN=Dedo Solto"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add android/app/dedosolto.keystore
+            git commit -m "Chave de assinatura do APK"
+            git push
+          fi
+
+      - name: Compilar APK
+        working-directory: android
+        run: gradle assembleRelease --no-daemon
+
+      - name: Renomear
+        run: cp android/app/build/outputs/apk/release/app-release.apk dedo-solto.apk
+
+      - name: Publicar na página de Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.${{ github.run_number }}
+          name: Dedo Solto 1.${{ github.run_number }}
+          body: |
+            Baixe o arquivo **dedo-solto.apk** abaixo no celular Android e abra para instalar.
+            Na primeira vez o Android pede para permitir "instalar apps desta fonte".
+          files: dedo-solto.apk
+          make_latest: true

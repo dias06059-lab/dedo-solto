@@ -1,2 +1,7 @@
 ﻿.claude/settings.local.json
 
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+

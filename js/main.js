@@ -30,6 +30,8 @@ let start = 'home';
 try { start = sessionStorage.getItem('tab') || 'home'; } catch { /* ok */ }
 go(start);
 
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+// No APK os arquivos já estão no aparelho: não precisa de service worker
+const inApk = location.hostname === 'appassets.androidplatform.net';
+if ('serviceWorker' in navigator && location.protocol !== 'file:' && !inApk) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
